@@ -110,6 +110,7 @@ mkdir -p "$APP_DIR/data"
 
 # Create a Python virtual environment inside the app directory
 python3 -m venv "$APP_DIR/venv"
+source "$APP_DIR/venv"/bin/activate
 
 # The person deploying owns the code directory so they can rsync into it.
 # The service account owns the data directory because that is the only place
