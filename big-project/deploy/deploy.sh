@@ -84,7 +84,7 @@ rsync -az --delete \
 echo "==> Installing dependencies and restarting the service"
 
 # Use the virtual environment's pip to install requirements
-source "$APP_DIR/venv"/bin/activate
+source "$REMOTE_DIR/venv"/bin/activate
 #./venv/bin/
 pip install --upgrade pip
 #./venv/bin/
