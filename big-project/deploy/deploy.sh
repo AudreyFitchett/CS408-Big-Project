@@ -84,12 +84,17 @@ rsync -az --delete \
 echo "==> Installing dependencies and restarting the service"
 
 # Use the virtual environment's pip to install requirements
-./venv/bin/pip install --upgrade pip
-./venv/bin/pip install -r requirements.tx
+source "$APP_DIR/venv"/bin/activate
+#./venv/bin/
+pip install --upgrade pip
+#./venv/bin/
+pip install -r requirements.tx
 
 # Run Django maintenance tasks
-./venv/bin/python manage.py migrate --noinput
-./venv/bin/python manage.py collectstatic --noinput
+#./venv/bin/
+python manage.py migrate --noinput
+#./venv/bin/
+python manage.py collectstatic --noinput
 
 # Restart the systemd service
 sudo systemctl restart ${SERVICE}
