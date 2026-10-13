@@ -35,6 +35,8 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # a laptop works without sudo on the far end.
 DEPLOY_USER="${SUDO_USER:-root}"
 
+prinf "${DEPLOY_USER}"
+
 # --- helpers ----------------------------------------------------------------
 
 # Print a step heading so the output is easy to follow.
