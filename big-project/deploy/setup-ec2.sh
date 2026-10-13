@@ -109,7 +109,8 @@ say "Creating $APP_DIR"
 mkdir -p "$APP_DIR/data"
 
 # Create a Python virtual environment inside the app directory
-python3 -m venv .venv
+say "Creating the virtual environment"
+python3 -m venv virt || die "cannot create virtual environment"
 
 # The person deploying owns the code directory so they can rsync into it.
 # The service account owns the data directory because that is the only place
