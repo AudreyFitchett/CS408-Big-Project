@@ -35,7 +35,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # a laptop works without sudo on the far end.
 DEPLOY_USER="${SUDO_USER:-root}"
 
-prinf '\n==> %s\n' "${DEPLOY_USER}"
+
 
 # --- helpers ----------------------------------------------------------------
 
@@ -50,6 +50,8 @@ die() {
 }
 
 # --- checks -----------------------------------------------------------------
+
+say "${DEPLOY_USER}"
 
 [ "$(id -u)" -eq 0 ] || die "run this with sudo: sudo bash $0"
 
