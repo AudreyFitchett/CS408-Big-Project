@@ -40,7 +40,7 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/opt/todo-app/data
+ReadWritePaths=/opt/lazygirl/data
 
 [Install]
 WantedBy=multi-user.target

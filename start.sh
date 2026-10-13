@@ -97,7 +97,7 @@ python3 -m pip --version || die "pip is not installed, but Python is. Run the co
 
 #python3 -c "import django" || die "django is not installed, but Python is. Run the command python3 -m pip install django"
 
-#[ -f package.json ] || die "no package.json here. Run this script from inside the project folder."
+[ -f manage.py ] || { echo "ERROR: no manage.py found in $PROJECT_DIR" >&2; exit 1; }
 
 
 # Install dependencies on the first run, and again when they change (which is
@@ -137,18 +137,20 @@ fi
 
 # PORT is read by server/server.js. Exporting it here is the same mechanism
 # systemd uses on the EC2 server, just with a different value.
-# if [ -n "$PORT_OVERRIDE" ]; then
-#     export PORT="$PORT_OVERRIDE"
-# fi
+if [ -n "$PORT_OVERRIDE" ]; then
+    export PORT="$PORT_OVERRIDE"
+fi
 
-# PORT_IN_USE="${PORT_OVERRIDE:-3000}"
-# say "Starting on http://localhost:${PORT_IN_USE} -- press Ctrl+C to stop"
+PORT_IN_USE="${PORT_OVERRIDE:-3000}"
+say "Starting on http://localhost:${PORT_IN_USE} -- press Ctrl+C to stop"
 
-# if [ "$DEV_MODE" = "true" ]; then
-#     say "Dev mode: the server restarts when you save a file"
-#     # exec replaces this shell with node, so Ctrl+C reaches node directly
-#     # instead of killing this wrapper and orphaning the server.
-#     exec node --watch server/server.js
-# fi
+if [ "$DEV_MODE" = "true" ]; then
+    say "Dev mode: Django runserver automatically restarts when you save a file"
+    # exec replaces this shell with node, so Ctrl+C reaches node directly
+    # instead of killing this wrapper and orphaning the server.
+    exec python manage.py runserver "${PORT_IN_USE}"
 
-# exec node server/server.js
+else   
+    say "Production mode: running with Gunicorn"
+    exec gunicorn myproject.wsgi:application --bind "127.0.0.1:${PORT_IN_USE}"
+fi
