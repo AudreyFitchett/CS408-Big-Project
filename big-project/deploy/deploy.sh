@@ -24,8 +24,8 @@ set -euo pipefail
 REMOTE_HOST=""
 SSH_KEY=""
 REMOTE_USER="ubuntu"
-REMOTE_DIR="/opt/lazygirl"
-SERVICE="lazygirl"
+REMOTE_DIR="/opt/lazygirl-app"
+SERVICE="lazygirl-app"
 
 # Print the comment block at the top of this file as the help text.
 usage() {
