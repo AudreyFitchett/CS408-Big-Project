@@ -108,10 +108,6 @@ say "Creating $APP_DIR"
 
 mkdir -p "$APP_DIR/data"
 
-# Create a Python virtual environment inside the app directory
-say "Creating the virtual environment"
-python3 -m venv "$APP_DIR/venv" || die "cannot create virtual environment"
-
 # The person deploying owns the code directory so they can rsync into it.
 # The service account owns the data directory because that is the only place
 # the running app has to write.
@@ -127,6 +123,10 @@ chmod 770 "$APP_DIR/data"
 # fi
 
 # --- systemd ----------------------------------------------------------------
+
+# Create a Python virtual environment inside the app directory
+say "Creating the virtual environment"
+python3 -m venv "$APP_DIR/venv" || die "cannot create virtual environment"
 
 say "Installing the $APP_NAME systemd service"
 
