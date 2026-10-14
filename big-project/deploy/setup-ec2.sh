@@ -22,7 +22,7 @@
 # step fails and leaves you with a half configured server.
 set -euo pipefail
 
-APP_NAME="lazygirl"
+APP_NAME="lazygirl-app"
 APP_DIR="/opt/lazygirl"
 APP_USER="lazygirl"
 REQUIRED_PYTHON_VERSION="3"
