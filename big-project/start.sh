@@ -27,6 +27,8 @@ REQUIRED_PYTHON_VERSION=3
 
 DEV_MODE="false"
 PORT_OVERRIDE=""
+APP_HOST="${APP_HOST:-127.0.0.1}"
+APP_PORT="${APP_PORT:-8000}"
 
 # --- helpers ----------------------------------------------------------------
 
@@ -98,6 +100,7 @@ python3 -m pip --version || die "pip is not installed, but Python is. Run the co
 #python3 -c "import django" || die "django is not installed, but Python is. Run the command python3 -m pip install django"
 
 [ -f manage.py ] || { echo "ERROR: no manage.py found in $PROJECT_DIR" >&2; exit 1; }
+[-d "./venv" ] || { python3 -m venv .venv; }
 
 
 # Install dependencies on the first run, and again when they change (which is
@@ -113,7 +116,7 @@ if [ ! -d requirements.txt ]; then
     say "Installing dependencies (this happens once, and takes a moment)"
     i=0
     while IFS= read -r line; do
-        python3 -m pip install $line;
+        ./venv/bin/pip install $line;
     done < requirements.txt
         #let's give this a try. The other option is to read the file, put it into an array, and then read the array smh
         #i=0;
@@ -129,7 +132,7 @@ elif [ ! -f "$INSTALL_MARKER" ] || [ requirements.txt -nt "$INSTALL_MARKER" ]; t
     cp requirements.txt old_requirements.txt
 
     while IFS= read -r line; do
-        python3 -m pip install $line;
+        ./venv/bin/pip install $line;
     done < requirements.txt
 fi
 
@@ -152,5 +155,5 @@ if [ "$DEV_MODE" = "true" ]; then
 
 else   
     say "Production mode: running with Gunicorn"
-    exec gunicorn myproject.wsgi:application --bind "127.0.0.1:${PORT_IN_USE}"
+    exec ./venv/bin/gunicorn --bind "${APP_HOST}:$APP_PORT" lazygirl.wsgi:application
 fi

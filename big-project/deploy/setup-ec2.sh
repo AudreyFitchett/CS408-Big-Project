@@ -22,9 +22,9 @@
 # step fails and leaves you with a half configured server.
 set -euo pipefail
 
-APP_NAME="lazygirl-app"
+APP_NAME="lazygirl"
 APP_DIR="/opt/lazygirl"
-APP_USER="lazygirl"
+APP_USER="person"
 REQUIRED_PYTHON_VERSION="3"
 
 # The directory this script lives in, so it can find the files next to it no

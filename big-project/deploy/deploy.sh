@@ -24,8 +24,8 @@ set -euo pipefail
 REMOTE_HOST=""
 SSH_KEY=""
 REMOTE_USER="ubuntu"
-REMOTE_DIR="/opt/lazygirl-app"
-SERVICE="lazygirl-app"
+REMOTE_DIR="/opt/lazygirl"
+SERVICE="lazygirl"
 
 # Print the comment block at the top of this file as the help text.
 usage() {
@@ -52,7 +52,7 @@ done
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$PROJECT_DIR"
 
-[ -f manage.py ] || { echo "ERROR: no manage.py found in $PROJECT_DIR" >&2; exit 1; }
+# [ -f manage.py ] || { echo "ERROR: no manage.py found in $PROJECT_DIR" >&2; exit 1; }
 
 # Build the ssh options once and reuse them for both ssh and rsync.
 SSH_OPTS=(-o StrictHostKeyChecking=accept-new)
@@ -65,12 +65,13 @@ TARGET="${REMOTE_USER}@${REMOTE_HOST}"
 
 echo "==> Running tests before deploying"
 python3 -m pytest || python3 manage.py test
+[ -f "./venv/bin/python" ] || { echo "no virtual environment found locally. please run start.sh"; }
 
 echo "==> Copying files to ${TARGET}:${REMOTE_DIR}"
 # --delete removes files on the server that you deleted locally, so the server
 # is an exact mirror of your source. The excludes keep local-only things out:
 # node_modules is rebuilt on the server, and data/ belongs to the server.
-rsync -az --delete \
+sudo rsync -az --delete \
    --exclude '.git' \
     --exclude 'venv' \
     --exclude '__pycache__' \
@@ -84,24 +85,22 @@ rsync -az --delete \
 echo "==> Installing dependencies and restarting the service"
 
 # Use the virtual environment's pip to install requirements
-[-d "${REMOTE_DIR}/venv" ] || { python3 -m venv "${REMOTE_DIR}/venv"; }
+[ -f "${REMOTE_DIR}"/venv ] || { sudo python3 -m venv "${REMOTE_DIR}"/venv; }
 source "${REMOTE_DIR}"/venv/bin/activate
-#./venv/bin/
-pip install --upgrade pip
-#./venv/bin/
-pip install -r requirements.tx
+./venv/bin/pip install pip
+./venv/bin/pip install -r requirements.txt
+./venv/bin/python manage.py migrate
 
 # Run Django maintenance tasks
-#./venv/bin/
-python manage.py migrate --noinput
-#./venv/bin/
-python manage.py collectstatic --noinput
+./venv/bin/python manage.py makemigrations lzwrkts
+./venv/bin/python manage.py migrate
+# ./venv/bin/python manage.py collectstatic
 
 # Restart the systemd service
-sudo systemctl restart ${SERVICE}
-sleep 2
-sudo systemctl is-active --quiet ${SERVICE} && echo 'service is running'
-"
+# sudo brew services restart ${SERVICE}
+# sleep 2
+# sudo brew services is-active --quiet ${SERVICE} && echo 'service is running'
+# "
 
 echo "==> Checking the health endpoint"
 if curl -fsS --max-time 10 "http://${REMOTE_HOST}/api/health"; then
