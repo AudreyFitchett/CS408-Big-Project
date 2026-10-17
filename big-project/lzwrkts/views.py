@@ -1,11 +1,17 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.template import loader
+import html
 import cowsay
 
 # Create your views here.
 def index(request):
-    message = request.GET.get('msg', 'Oink.')
+    # Get the 'msg' parameter from the URL, default to 'Moo!'
+    message = request.GET.get('msg', 'OINK.')
     
-    cow_art = cowsay.get_output_string('cow', message)
+    # Generate the cowsay ASCII art
+    cow_art = html.escape(cowsay.get_output_string('cow', message))
+    context = {'cow_art': cow_art}
     
-    return HttpResponse(cow_art, content_type="text/plain; charset=utf-8")
+    # Return as plain text so the browser preserves the formatting
+    return render(request, "lzwrkts/temp.html", context)
