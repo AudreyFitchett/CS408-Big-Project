@@ -85,25 +85,29 @@ sudo rsync -az --delete \
 echo "==> Installing dependencies and restarting the service"
 
 # Use the virtual environment's pip to install requirements
-[ -f "${REMOTE_DIR}"/venv ] || { sudo python3 -m venv "${REMOTE_DIR}"/venv; }
+[ -d "${REMOTE_DIR}"/venv ] || { sudo python3 -m venv "${REMOTE_DIR}"/venv; }
 source "${REMOTE_DIR}"/venv/bin/activate
-./venv/bin/pip install pip
-./venv/bin/pip install -r requirements.txt
-./venv/bin/python manage.py migrate
+sudo ./venv/bin/pip install --upgrade pip
+sudo ./venv/bin/pip install -r requirements.txt
+sudo ./venv/bin/python manage.py migrate
 
 # Run Django maintenance tasks
-./venv/bin/python manage.py makemigrations lzwrkts
-./venv/bin/python manage.py migrate
+sudo ./venv/bin/python manage.py makemigrations lzwrkts
+sudo ./venv/bin/python manage.py migrate
 # ./venv/bin/python manage.py collectstatic
 
+# echo "==> Updating Nginx configuration"
+# sudo cp "${REMOTE_DIR}/deploy/nginx-lazygirl.conf" /etc/nginx/conf.d/lazygirl.conf
+# sudo nginx -t
+# sudo systemctl restart nginx
+
 # Restart the systemd service
-# sudo brew services restart ${SERVICE}
-# sleep 2
-# sudo brew services is-active --quiet ${SERVICE} && echo 'service is running'
-# "
+ssh "${SSH_OPTS[@]}" "$TARGET" "sudo systemctl restart ${SERVICE}"
+#sleep 2
+ssh "${SSH_OPTS[@]}" "$TARGET" "sudo systemctl is-active --quiet ${SERVICE} && echo 'service is running'"
 
 echo "==> Checking the health endpoint"
-if curl -fsS --max-time 10 "http://${REMOTE_HOST}/api/health"; then
+if curl -fsS --max-time 10 "http://${REMOTE_HOST}/lzwrkts"; then
     printf '\n\n==> Deployed. Open http://%s in your browser.\n' "$REMOTE_HOST"
 else
     printf '\n'

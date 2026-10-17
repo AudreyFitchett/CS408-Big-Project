@@ -12,15 +12,15 @@ Description=Gunicorn instance to serve lazygirl
 After=network.target
 
 [Service]
-Type=simple
+#Type=simple
 
 # Run as an unprivileged user that only exists to run this app. If someone finds
 # a hole in the app, they get this account and nothing more.
-User=person
-Group=person
+User=ubuntu
+Group=ubuntu
 
 WorkingDirectory=/opt/lazygirl
-ExecStart=/opt/lazygirl/venv/lib/python3.14/site-packages --workers 3 --bind 127.0.0.1:8000 lazygirl.wsgi:application
+ExecStart=/opt/lazygirl/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 lazygirl.wsgi:application
 
 # The app reads both of these (see server/server.js and server/store.js).
 Environment="PATH=/opt/lazygirl/venv/"
@@ -36,11 +36,11 @@ StandardOutput=journal
 StandardError=journal
 
 # # Some cheap hardening. The app can only write to its own data directory.
-NoNewPrivileges=true
-PrivateTmp=true
-ProtectSystem=strict
-ProtectHome=true
-ReadWritePaths=/opt/lazygirl/data
+# NoNewPrivileges=true
+# PrivateTmp=true
+# ProtectSystem=strict
+# ProtectHome=true
+# ReadWritePaths=/opt/lazygirl/data
 
 [Install]
 WantedBy=multi-user.target

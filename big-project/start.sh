@@ -100,7 +100,7 @@ python3 -m pip --version || die "pip is not installed, but Python is. Run the co
 #python3 -c "import django" || die "django is not installed, but Python is. Run the command python3 -m pip install django"
 
 [ -f manage.py ] || { echo "ERROR: no manage.py found in $PROJECT_DIR" >&2; exit 1; }
-[-d "./venv" ] || { python3 -m venv .venv; }
+[ -d "./venv" ] || { python3 -m venv .venv; }
 
 
 # Install dependencies on the first run, and again when they change (which is

@@ -15,3 +15,6 @@ def index(request):
     
     # Return as plain text so the browser preserves the formatting
     return render(request, "lzwrkts/temp.html", context)
+
+def health_check(request):
+    return HttpResponse("OK", status=200)
