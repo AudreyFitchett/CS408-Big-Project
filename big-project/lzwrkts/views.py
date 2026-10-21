@@ -34,65 +34,59 @@ def login(request):
                 if(real_user.password == password):
                     return HttpResponseRedirect(reverse("lzwrkts:home"))
                 else: 
-                    return HttpResponse("Not Cool Beans: wrong password")
+                    return render(
+                        request,
+                        "lzwrkts/index.html",
+                        {
+                            "form": form,
+                            "error_message": "Incorrect Username/Password. Please try again",
+                        },
+                    )
             except User.DoesNotExist: 
-                return HttpResponse("Not Cool Beans: username dne")
+                return render(
+                    request,
+                    "lzwrkts/index.html",
+                    {
+                        "error_message": "Incorrect Username/Password. Please try again",
+                    },
+                )
         else:
-            print(form.errors)
-            return HttpResponse("Not Cool Beans: something ain't right")
+            return render(
+                    request,
+                    "lzwrkts/index.html",
+                    {
+                        "form": form,
+                        "error_message": "Incorrect Username/Password. Please try again",
+                    },
+                )
     else:
         form = UserForm()
-    return render(request, "lzwrkts/index.html", {"form": form})
+        return render(request, "lzwrkts/index.html", {"form": form})
 
 def signup(request):
     if request.method == "POST":
-        form = LoginForm(request.POST)
-        if form.is_valid(): 
-            try:
-                form.save()
-                return HttpResponse("cool beans")
-            except User.DoesNotExist: 
-                return HttpResponse("Not Cool Beans: username dne")
+        new_user = LoginForm(request.POST)
+        if new_user.is_valid(): 
+            new_user.save()
+            return render(
+                    request,
+                    "lzwrkts/index.html",
+                    {
+                        "error_message": "Success! Please log in",
+                    },
+                )
         else:
-            print(form.errors)
-            return HttpResponse("Not Cool Beans: something ain't right")
+            return render(
+                    request,
+                    "lzwrkts/index.html",
+                    {
+                        "new_user": new_user,
+                        "error_message": new_user.errors,
+                    },
+                )
     else:
-        form = UserForm()
-    return render(request, "lzwrkts/index.html", {"form": form})
-
-    # try: 
-    #     user = request.GET["username"]
-    #     pwd = request.GET["password"]
-        
-
-
-    # except(KeyError):
-    #    return render(
-    #         request,
-    #         "polls/index.html",
-    #         {
-    #             "error_message": "Please enter a username/password",
-    #         },
-    #     )
-    # else: 
-    #     if(not user.exists()):
-    #         return render(
-    #             request,
-    #             "lzwrkts/index.html",
-    #             {
-    #                 "error_message": "User does not exist",
-    #             },
-    #         )
-    #     elif(user.first().password != pwd):
-    #         return render(
-    #             request,
-    #             "lzwrkts/index.html",
-    #             {
-    #                 "error_message": "Incorrect password",
-    #             },
-    #         )
-    #     else:
-    #         return HttpResponse("Cool Beans")
+        new_user = UserForm()
+        return render(request, "lzwrkts/index.html", {"form": new_user})
 
 def health_check(request):
     return HttpResponse("OK", status=200)

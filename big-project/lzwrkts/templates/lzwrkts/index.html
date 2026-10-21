@@ -2,6 +2,7 @@
 <form action="{% url 'lzwrkts:login' %}" method="post">
     {% csrf_token %}
     <div class="mb-3 mt-3">
+      {% if form.errors %}<p><strong>{{ error_message }}</strong></p>{% endif %}
       <label for="username" class="form-label">Username:</label>
       <input type="username" class="form-control" id="username" placeholder="Enter username" name="username">
     </div>
@@ -15,6 +16,7 @@
 <form action="{% url 'lzwrkts:signup' %}" method="post">
   {% csrf_token %}
   <div class="mb-3 mt-3">
+    {% if new_user.errors %}<p><strong>{{ error_message }}</strong></p>{% endif %}
     <label for="username" class="form-label">Username:</label>
     <input type="username" class="form-control" id="username" placeholder="Enter username" name="username">
   </div>
