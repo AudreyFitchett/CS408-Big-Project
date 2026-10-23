@@ -15,6 +15,13 @@ def index(request):
 def home(request, user_username):
     user = get_object_or_404(User, pk=user_username)
     if(user.active_session == True):
+        return render(request, "lzwrkts/home.html", {"user_username":user_username})
+    else:
+        return render(request, "lzwrkts/index.html")
+
+def new_workout(request, user_username):
+    user = get_object_or_404(User, pk=user_username)
+    if(user.active_session == True):
         # Get the 'msg' parameter from the URL, default to 'Moo!'
         message = request.GET.get('msg', 'WORK IN PROGRESS.')
         
@@ -23,9 +30,40 @@ def home(request, user_username):
         context = {'cow_art': cow_art}
         
         # Return as plain text so the browser preserves the formatting
-        return render(request, "lzwrkts/temp.html", context)
+        return render(request, "lzwrkts/new_workout.html", context)
     else:
         return render(request, "lzwrkts/index.html")
+
+def search_exercises(request, user_username):
+    user = get_object_or_404(User, pk=user_username)
+    if(user.active_session == True):
+        # Get the 'msg' parameter from the URL, default to 'Moo!'
+        message = request.GET.get('msg', 'WORK IN PROGRESS.')
+        
+        # Generate the cowsay ASCII art
+        cow_art = html.escape(cowsay.get_output_string('cow', message))
+        context = {'cow_art': cow_art}
+        
+        # Return as plain text so the browser preserves the formatting
+        return render(request, "lzwrkts/search_page.html", context)
+    else:
+        return render(request, "lzwrkts/index.html")
+    
+def workout_history(request, user_username):
+    user = get_object_or_404(User, pk=user_username)
+    if(user.active_session == True):
+        # Get the 'msg' parameter from the URL, default to 'Moo!'
+        message = request.GET.get('msg', 'WORK IN PROGRESS.')
+        
+        # Generate the cowsay ASCII art
+        cow_art = html.escape(cowsay.get_output_string('cow', message))
+        context = {'cow_art': cow_art}
+        
+        # Return as plain text so the browser preserves the formatting
+        return render(request, "lzwrkts/search_page.html", context)
+    else:
+        return render(request, "lzwrkts/index.html")
+
 
 def login(request):
     if request.method == "POST":
