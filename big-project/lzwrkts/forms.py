@@ -2,5 +2,5 @@ from django import forms
 
 
 class UserForm(forms.Form):
-    username = forms.CharField(label="user", max_length=200)
-    password = forms.CharField(label="pwd", max_length=200)
+    user = forms.CharField(label="user", max_length=200)
+    pwd = forms.CharField(label="pwd", max_length=200)

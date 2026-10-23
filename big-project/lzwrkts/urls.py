@@ -8,5 +8,5 @@ urlpatterns = [
     path('api/health', views.health_check),
     path("login/", views.login, name="login"),
     path("signup/", views.signup, name="signup"),
-    path("home/", views.home, name="home"),
+    path("<str:user_username>/home/", views.home, name="home"),
 ]
