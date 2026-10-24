@@ -11,11 +11,14 @@ class User(models.Model):
     def __str__(self):
         return self.username
     # I might change this so that it just checks for the user, then I can check the password later
-    # def is_real(username, password):
-    #     for user in User.objects.all():
-    #         if user.username == username:
-    #             return user
-    #     return User()
+    def is_real(username):
+        for user in User.objects.all():
+            if user.username == username:
+                return user
+        return User()
+    
+class Workout(models.Model):
+    name = models.CharField(max_length=200)
     
 class LoginForm(ModelForm):
     class Meta:
