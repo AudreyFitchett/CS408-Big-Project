@@ -87,12 +87,12 @@ echo "==> Installing dependencies and restarting the service"
 # Use the virtual environment's pip to install requirements
 [ -d "${REMOTE_DIR}"/venv ] || { sudo python3 -m venv "${REMOTE_DIR}"/venv; }
 source "${REMOTE_DIR}"/venv/bin/activate
-sudo ./venv/bin/pip install --upgrade pip
-sudo ./venv/bin/pip install -r requirements.txt
+sudo "${REMOTE_DIR}"/venv/bin/pip install --upgrade pip
+sudo "${REMOTE_DIR}"/venv/bin/pip install -r requirements.txt
 
 # Run Django maintenance tasks
 #sudo ./venv/bin/python manage.py makemigrations lzwrkts
-sudo ./venv/bin/python manage.py migrate
+sudo "${REMOTE_DIR}"/venv/bin/python manage.py migrate
 # ./venv/bin/python manage.py collectstatic
 
 # echo "==> Updating Nginx configuration"
