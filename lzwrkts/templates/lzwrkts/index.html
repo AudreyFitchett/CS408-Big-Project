@@ -1,0 +1,46 @@
+{% include "lzwrkts/header.html" %} 
+<div class="container-fluid px-5 my-5">
+  <div class="row align-items-center justify-content-between">
+
+    <div class="col-md-6 mb-4 mb-md-0">
+      <h1 class="display-1 fw-bold">Take the work out of working out.</h1>
+      <h2 class="text-secondary display-5">LazyGirl Workouts generates beginner-friendly exercises just for you.</h2>
+    </div>
+    
+    <div class="col-md-5 ps-5">
+      <h4>LOG IN:</h4>
+      <form action="{% url 'lzwrkts:login' %}" method="post">
+          {% csrf_token %}
+          <div class="mb-3 col-md-8">
+            {% if form %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+            <label for="user" class="form-label">Username:</label>
+            <input type="text" class="form-control" id="user" placeholder="Enter username" name="user">
+          </div>
+          <div class="mb-3 col-sm-8">
+            <label for="pwd" class="form-label">Password:</label>
+            <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="pwd">
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+      
+      <h4 class="mt-4">SIGN UP:</h4>
+      <form action="{% url 'lzwrkts:signup' %}" method="post">
+        {% csrf_token %}
+        <div class="mb-3 mt-3 col-sm-8">
+          {% if new_user.errors %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+          <label for="username" class="form-label">Username:</label>
+          <input type="text" class="form-control" id="username" placeholder="Enter username" name="username">
+        </div>
+        <div class="mb-3 col-sm-8">
+          <label for="password" class="form-label">Password:</label>
+          <input type="password" class="form-control" id="password" placeholder="Enter password" name="password">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+      
+    </div> 
+  </div>
+</div>
+
+
+{% include "lzwrkts/footer.html" %}
