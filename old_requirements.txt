@@ -1,4 +1,0 @@
-django
-gunicorn
-cowsay
-pytest

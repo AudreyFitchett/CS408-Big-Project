@@ -432,3 +432,6 @@ FodyWeavers.xsd
 
 #mac nonsense
 .DS_Store
+
+#me nonsense
+old-requirements.txt
