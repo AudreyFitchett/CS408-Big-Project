@@ -57,8 +57,8 @@ class UserExercises(models.Model):
     workout_id = models.ForeignKey(UserWorkouts, on_delete=models.CASCADE)
     exercise_id = models.ForeignKey(Exercise, on_delete=models.CASCADE)
     weight = models.DecimalField(max_digits=4, decimal_places=1)
-    reps = models.PositiveSmallIntegerField()
-    reps = models.PositiveSmallIntegerField()
+    reps = models.PositiveSmallIntegerField(null=True)
+    sets = models.PositiveSmallIntegerField(null=True)
     
     
 class LoginForm(ModelForm):

@@ -6,6 +6,7 @@ import html
 import cowsay
 from .models import *
 from .forms import UserForm
+from django.utils import timezone
 
 # Create your views here.
 def index(request): 

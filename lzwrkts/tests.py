@@ -3,11 +3,14 @@ import pytest
 from .models import *
 import json
 import random
+from django.utils import timezone
+import datetime
 
 # Create your tests here.
 pytestmark = pytest.mark.django_db
 
 #just wanna make sure everything is loaded in properly
+#these should really never change
 class TestDBInit:
     def test_muscles_exists(self):
         assert Muscles.objects.exists() and Muscles.objects.count() == 17
@@ -56,6 +59,51 @@ class TestDBInit:
             
         assert Exercise.objects.filter(name = name, category = category, equipment = equipment, primary_muscle = primary_muscle, 
                             instructions = instructions, level = level, image1_path = image1_path, image2_path = image2_path) is not None
+
+class IdkWhyImDoingClasses():
+
+    def test_update_workout(self):
+        user = User.objects.create(username="temp", password="1234")
+        workout = UserWorkouts.objects.create(user=user)
+
+        date = datetime.datetime(2026, 7, 15, 12, 0, 0)
+        date = timezone.make_aware(date) 
+
+        workout.date_completed = date
+        workout.save()
+        assert UserWorkouts.objects.filter(user=user, date_completed=date) is not None
+
+    @pytest.mark.parametrize(
+        "index",
+        [random.randint(0, 50), random.randint(0, 50), random.randint(0, 50), random.randint(0, 50), random.randint(0, 50)],
+    )
+    def test_add_user_exercise(self, index):
+        user = User.objects.create(username="temp", password="1234")
+        workout = UserWorkouts.objects.create(user=user)
+        exercise = Exercise.objects.get(name="90/90 Hamstring")
+
+        UserExercises.objects.create(workout, exercise, index, index, index)
+
+        assert UserExercises.objects.filter(workout, exercise, index, index, index) is not None
+    
+    @pytest.mark.parametrize(
+        "index",
+        [random.randint(0, 50), random.randint(0, 50), random.randint(0, 50), random.randint(0, 50), random.randint(0, 50)],
+    )
+    def test_update_user_exercise(self, index):
+        user = User.objects.create(username="temp", password="1234")
+        workout = UserWorkouts.objects.create(user=user)
+        exercise = Exercise.objects.get(name="90/90 Hamstring")
+
+        user_exercise = UserExercises.objects.create(workout, exercise, index, index, index)
+
+        user_exercise.sets = index + 1
+        user_exercise.save()
+
+        assert UserExercises.objects.filter(workout, exercise, index, index, index) is None
+     
+    
+    
 
     
 
