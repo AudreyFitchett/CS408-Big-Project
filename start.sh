@@ -137,6 +137,11 @@ if [ ! -f "$INSTALL_MARKER" ] || [ requirements.txt -nt "$INSTALL_MARKER" ]; the
     while IFS= read -r line; do
         ./venv/bin/pip install $line;
     done < requirements.txt
+else
+    say "Installing dependencies (this happens once, and takes a moment)"
+    while IFS= read -r line; do
+        ./venv/bin/pip install $line;
+    done < requirements.txt
 fi
 
 # --- start ------------------------------------------------------------------
