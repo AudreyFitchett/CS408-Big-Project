@@ -25,20 +25,29 @@ class User(models.Model):
 # User Workouts
 
 #reminder, default id when an explicit one isn't set
-class ExerciseGroup(models.Model):
-    name = models.CharField(max_length=200, primary_key=True)
+# class ExerciseGroup(models.Model):
+#     #there's only three rn and their names are all distinct so I think it's fine
+#     name = models.CharField(max_length=200)
+    
+class Muscles(models.Model):
+    name = models.CharField(max_length=200)
+    exercise_group = models.CharField(max_length=200, null = True)
 
 class Exercise(models.Model):
     name = models.CharField(max_length=200)
     #I might want to change this at some point
-    exercise_group = models.ForeignKey(ExerciseGroup, on_delete=models.CASCADE)
-    link = models.URLField()
+    #exercise_group = models.ForeignKey(ExerciseGroup, on_delete=models.CASCADE, null=True)
+    equipment = models.CharField(max_length=200, null=True)
+    category = models.CharField(max_length=200, null=True)
+    instructions = models.TextField(null=True)
+    level = models.TextField(null=True)
+    image1_path = models.CharField(max_length=200, null=True)
+    image2_path = models.CharField(max_length=200, null=True)
+    primary_muscle = models.ForeignKey(Muscles, on_delete=models.SET_NULL, null=True)
+    #link = models.URLField()
     #the database I'm pulling the info from has a description for each, which I think is worth it, so
     #add that field here
 
-class Muscles(models.Model):
-    name = models.CharField(max_length=200, primary_key=True)
-    exercise_group = models.ForeignKey(ExerciseGroup, on_delete=models.CASCADE)
 
 class UserWorkouts(models.Model):
     date_completed = models.DateTimeField(default=timezone.now)

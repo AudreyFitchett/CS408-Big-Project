@@ -79,20 +79,44 @@ sudo rsync -az --delete \
     --exclude 'db.sqlite3' \
     --exclude '.DS_Store' \
     --exclude '*.log' \
+    --exclude 'staticfiles'\
     -e "ssh ${SSH_OPTS[*]}" \
     ./ "${TARGET}:${REMOTE_DIR}/"
 
 echo "==> Installing dependencies and restarting the service"
 
 # Use the virtual environment's pip to install requirements
-[ -d "${REMOTE_DIR}"/venv ] || { sudo python3 -m venv "${REMOTE_DIR}"/venv; }
-source "${REMOTE_DIR}"/venv/bin/activate
-sudo "${REMOTE_DIR}"/venv/bin/pip install --upgrade pip
-sudo "${REMOTE_DIR}"/venv/bin/pip install -r requirements.txt
+# ssh "${SSH_OPTS[@]}" "$TARGET" "
+#     cd ${REMOTE_DIR}
+    
+#     # Use the virtual environment's pip to install requirements
+#     [ -d venv ] || sudo python3 -m venv venv
+#     sudo ./venv/bin/pip install --upgrade pip
+#     sudo ./venv/bin/pip install -r requirements.txt
+#     # Run Django maintenance tasks
+#     sudo ./venv/bin/python manage.py migrate
+# "
+ssh "${SSH_OPTS[@]}" "$TARGET" "
+    set -e
+    cd '${REMOTE_DIR}'
+    sudo ./venv/bin/pip install --upgrade pip
+    sudo ./venv/bin/pip install -r requirements.txt
+    sudo ./venv/bin/python manage.py migrate
+    sudo ./venv/bin/python manage.py collectstatic --noinput
+    sudo chown ${REMOTE_USER}:${REMOTE_USER} /opt/lazygirl
+    sudo chown ${REMOTE_USER}:${REMOTE_USER} /opt/lazygirl/db.sqlite3
+    sudo systemctl restart ${SERVICE}
+    sleep 2
+    sudo systemctl is-active --quiet ${SERVICE} && echo 'service is running'
+"
+# [ -d "${REMOTE_DIR}"/venv ] || { sudo python3 -m venv "${REMOTE_DIR}"/venv; }
+# source "${REMOTE_DIR}"/venv/bin/activate
+# sudo "${REMOTE_DIR}"/venv/bin/pip install --upgrade pip
+# sudo "${REMOTE_DIR}"/venv/bin/pip install -r requirements.txt
 
-# Run Django maintenance tasks
-#sudo ./venv/bin/python manage.py makemigrations lzwrkts
-sudo "${REMOTE_DIR}"/venv/bin/python manage.py migrate
+# # Run Django maintenance tasks
+# #sudo ./venv/bin/python manage.py makemigrations lzwrkts
+# sudo "${REMOTE_DIR}"/venv/bin/python manage.py migrate
 # ./venv/bin/python manage.py collectstatic
 
 # echo "==> Updating Nginx configuration"

@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.template import loader
 import html
 import cowsay
-from .models import User, LoginForm
+from .models import *
 from .forms import UserForm
 
 # Create your views here.
@@ -24,10 +24,15 @@ def new_workout(request, user_username):
     if(user.active_session == True):
         # Get the 'msg' parameter from the URL, default to 'Moo!'
         message = request.GET.get('msg', 'WORK IN PROGRESS.')
+
+        e = Exercise.objects.get(name='3/4 Sit-Up')
+        #test_image2 = Exercise.objects.get(name='3/4 Sit-Up').image2_path
         
         # Generate the cowsay ASCII art
         cow_art = html.escape(cowsay.get_output_string('cow', message))
-        context = {'cow_art': cow_art}
+        context = {'cow_art': cow_art,
+                   'e': e,
+                   }
         
         # Return as plain text so the browser preserves the formatting
         return render(request, "lzwrkts/new_workout.html", context)
