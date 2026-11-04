@@ -1,5 +1,52 @@
-{% include "lzwrkts/temp.html" %} 
+{% include "lzwrkts/header.html" %} 
+<div class="container-fluid px-5 my-5">
+  <div class="row align-items-center justify-content-between">
 
-{% load static %}
-<img src="{% static e.image1_path %}" alt="{{ e.name }}">
-<img src="{% static e.image2_path %}" alt="{{ e.name }}">
+    <div class="col-md-6 mb-4 mb-md-0">
+      <h1 class="display-1 fw-bold">New Workout</h1>
+      <h2 class="text-secondary display-5">Answer these questions and we'll get a new workout created just for you! (That's a lie. It's randomized, but like your input does matter.)</h2>
+    </div>
+    
+    <div class="col-md-5 ps-5">
+      <form action="{% url 'lzwrkts:wrktgen' user_username %}" method="post">
+        {% csrf_token %}
+        <fieldset>
+            <legend>What would you like to exercise today?</legend>
+            <div class="d-flex justify-content-center align-items-center my-5 gap-5">
+                <input type="radio" class="btn-check" name="group" id="group" autocomplete="off" value="pull">
+                <label class="btn btn-light btn-lg" for="group"> Pull </label>
+                <input type="radio" class="btn-check" name="group" id="group" autocomplete="off" value="push">
+                <label class="btn btn-secondary btn-lg" for="grop">Push</label>
+                <input type="radio" class="btn-check" name="group" id="group" autocomplete="off" value="legs">
+                <label class="btn btn-dark btn-lg" for="group">Legs</label>
+            </div>
+        </fieldset>
+        <fieldset>
+            <legend>How many different exercises would you like to do?</legend>
+            <div class="d-flex justify-content-center align-items-center my-5 gap-5">
+                <input type="radio" class="btn-check" name="numsets" id="numsets" autocomplete="off" value="3">
+                <label class="btn btn-light btn-lg" for="numsets"> 3 </label>
+                <input type="radio" class="btn-check" name="numsets" id="numsets" autocomplete="off" value="4">
+                <label class="btn btn-secondary btn-lg" for="numsets">4</label>
+                <input type="radio" class="btn-check" name="numsets" id="numsets" autocomplete="off" value="5">
+                <label class="btn btn-dark btn-lg" for="numsets">5</label>
+            </div>
+        </fieldset>
+        <fieldset>
+        <legend>Would you like to do a bonus round of abs?</legend>
+            <div class="d-flex justify-content-center align-items-center my-5 gap-5">
+                <input type="radio" class="btn-check" name="bonus" id="bonus" value="yes" autocomplete="off">
+                <label class="btn btn-light btn-lg" for="bonus"> Yes </label>
+                <input type="radio" class="btn-check" name="bonus" id="bonus" value="no" autocomplete="off">
+                <label class="btn btn-secondary btn-lg" for="bonus">No</label>
+                <input type="radio" class="btn-check" name="bonus" id="bonus" value="suprise me" autocomplete="off">
+                <label class="btn btn-dark btn-lg" for="bonus">Surprise Me</label>
+            </div>
+        </fieldset>
+        <button type="submit" class="btn btn-primary">Submit</button>
+        
+      </form>
+    </div> 
+  </div>
+</div>
+{% include "lzwrkts/footer.html" %}

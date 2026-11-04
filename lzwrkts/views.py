@@ -5,7 +5,7 @@ from django.template import loader
 import html
 import cowsay
 from .models import *
-from .forms import UserForm
+from .forms import *
 from django.utils import timezone
 
 # Create your views here.
@@ -23,6 +23,8 @@ def home(request, user_username):
 def new_workout(request, user_username):
     user = get_object_or_404(User, pk=user_username)
     if(user.active_session == True):
+        
+
         # Get the 'msg' parameter from the URL, default to 'Moo!'
         message = request.GET.get('msg', 'WORK IN PROGRESS.')
 
@@ -33,12 +35,49 @@ def new_workout(request, user_username):
         cow_art = html.escape(cowsay.get_output_string('cow', message))
         context = {'cow_art': cow_art,
                    'e': e,
+                   'user_username': user_username,
                    }
         
         # Return as plain text so the browser preserves the formatting
         return render(request, "lzwrkts/new_workout.html", context)
     else:
         return render(request, "lzwrkts/index.html")
+
+def suggested_workout(request, user_username):
+    user = get_object_or_404(User, pk=user_username)
+    if(user.active_session == True):
+        
+
+        # Get the 'msg' parameter from the URL, default to 'Moo!'
+        message = request.GET.get('msg', 'WORK IN PROGRESS.')
+
+        e = Exercise.objects.get(name='3/4 Sit-Up')
+        #test_image2 = Exercise.objects.get(name='3/4 Sit-Up').image2_path
+        
+        # Generate the cowsay ASCII art
+        cow_art = html.escape(cowsay.get_output_string('cow', message))
+        context = {'cow_art': cow_art,
+                   'e': e,
+                   'user_username': user_username,
+                   }
+        return render(request, "lzwrkts/suggested_workout.html", context)
+    else:
+        return render(request, "lzwrkts/index.html")
+
+def workout_generator(request, user_username):
+    user = get_object_or_404(User, pk=user_username)
+    if request.method == "POST":
+            form = WorkoutForm(request.POST)
+            if form.is_valid():
+                group = form.cleaned_data["group"]
+                numsets = form.cleaned_data["numsets"]
+                bonus = form.cleaned_data["bonus"]
+                return HttpResponseRedirect(reverse("lzwrkts:suggestedwrkt", args=(user.username,)))
+            else:
+                #idk what else to do here
+                return render(request, "lzwrkts/new_workout.html", {"user_username": user_username})
+    else:
+        return render(request, "lzwrkts/new_workout.html", {"user_username": user_username})
 
 def search_exercises(request, user_username):
     user = get_object_or_404(User, pk=user_username)
@@ -138,6 +177,10 @@ def signup(request):
     else:
         new_user = UserForm()
         return render(request, "lzwrkts/index.html", {"form": new_user})
+    
+
+
+
 
 def health_check(request):
     return HttpResponse("OK", status=200)
