@@ -23,7 +23,6 @@ def home(request, user_username):
 def new_workout(request, user_username):
     user = get_object_or_404(User, pk=user_username)
     if(user.active_session == True):
-        
 
         # Get the 'msg' parameter from the URL, default to 'Moo!'
         message = request.GET.get('msg', 'WORK IN PROGRESS.')
@@ -46,7 +45,25 @@ def new_workout(request, user_username):
 def suggested_workout(request, user_username):
     user = get_object_or_404(User, pk=user_username)
     if(user.active_session == True):
-        
+        wrkt_ids = request.session.get('gen_wrkt_ids', [])
+        exercises = [Exercise.objects.get(pk=pk) for pk in wrkt_ids]
+
+        curr_wrkt = UserWorkouts(user_id = user)
+        user_history = UserExercises.objects.filter(workout_id__user_id = user_username)
+
+        if(user_history.count() !=0):
+            #see when a workout of the same muscle group was done 
+            #exercise id is the magic field
+            
+
+            #see if any of current exercises match the user history
+            #if they do, check the date they were completed
+            #if it's a week ago or less, increase rep (up to 12 - if number of reps is 12, increase weight) 
+            #if it's been longer than a week, keep it the same (for now, there's probably a more sciencey way to do it)
+             
+            #fuck, this is gonna be another form
+            #create a new user exercise for each with the information gathered, then put it in the session so the form can access it
+            print("beans")
 
         # Get the 'msg' parameter from the URL, default to 'Moo!'
         message = request.GET.get('msg', 'WORK IN PROGRESS.')
@@ -59,6 +76,8 @@ def suggested_workout(request, user_username):
         context = {'cow_art': cow_art,
                    'e': e,
                    'user_username': user_username,
+                   'wrkt_ids': wrkt_ids,
+                   'exercises': exercises,
                    }
         return render(request, "lzwrkts/suggested_workout.html", context)
     else:
@@ -72,6 +91,9 @@ def workout_generator(request, user_username):
                 group = form.cleaned_data["group"]
                 numsets = form.cleaned_data["numsets"]
                 bonus = form.cleaned_data["bonus"]
+
+                gen_wrkt = Exercise.grab_exercises(group, numsets, bonus)
+                request.session['gen_wrkt_ids'] = [exercise.pk for exercise in gen_wrkt]
                 return HttpResponseRedirect(reverse("lzwrkts:suggestedwrkt", args=(user.username,)))
             else:
                 #idk what else to do here

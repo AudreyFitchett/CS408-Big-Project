@@ -1,8 +1,53 @@
-{% include "lzwrkts/temp.html" %} 
+{% include "lzwrkts/header.html" %} 
+<h1 class="display-1 fw-bold">Your Workout</h1>
+<h2 class="text-secondary display-5">Here are your curated exercises.</h2>
 
+<div class="container-fluid px-5 my-5">
+    <form action="{#}" method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col">
+            </div>
+            <div class="col">
+                <h4>Sets</h4>
+            </div>
+            <div class="col">
+                <h4>Weights</h4>
+            </div>
+            <div class="col">
+                <h4>Reps</h4>
+            </div>
+            <div class="col">
+                <h4>Instructions</h4>
+            </div>
+            <div class="col">
+                <h4>Visual</h4>
+            </div>
+        </div>
+        {%for exercise in exercises%}
+            <div class="row">
+                <div class="col">
+                    <h5>{{ forloop.counter }}: {{ exercise.name }}</h5>
+                </div>
+                <div class="col">
+                    <input type="text" class="form-control" value="" name="sets">
+                </div>
+                <div class="col">
+                    <input type="password" class="form-control" value="tbd" name="weights">
+                </div>
+                <div class="col">
+                    <input type="password" class="form-control" value="tbd" name="reps">
+                </div>
+                <div class="col">
+                    <span>instructions here</span>
+                </div>
+                <div class="col">
+                    <span>photos here</span>
+                </div>
+            </div>
+        {% endfor %}
+    </form>
+</div>
 
-{% load static %}
-<img src="{% static e.image1_path %}" alt="{{ e.name }}">
-<img src="{% static e.image2_path %}" alt="{{ e.name }}">
 
 {% include "lzwrkts/footer.html" %}
