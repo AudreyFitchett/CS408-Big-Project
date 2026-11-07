@@ -10,3 +10,10 @@ class WorkoutForm(forms.Form):
     numsets = forms.IntegerField(label="numsets")
     bonus = forms.CharField(label="group", max_length=200)
 
+class ExerciseForm(forms.Form):
+    exercise_pk = forms.IntegerField(widget=forms.HiddenInput())
+    weight = forms.DecimalField(label="weight", max_digits=4, decimal_places=1, required=False)
+    reps = forms.IntegerField(label="reps", required=False)
+    sets = forms.IntegerField(label="sets", required=False)
+    liked = forms.BooleanField(label="liked", required=False)
+

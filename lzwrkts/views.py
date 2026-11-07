@@ -7,28 +7,32 @@ import cowsay
 from .models import *
 from .forms import *
 from django.utils import timezone
-from datetime import date
+import datetime
+from django.forms import formset_factory
+from .forms import ExerciseForm
 
-def grab_user_hist(user_history, exercises, workout):
+def grab_user_hist(user_history, exercises):
     user_ex = []
         
     for exercise in exercises:
         ex_history = user_history.filter(exercise_id = exercise)
-        new_ex = UserExercises(workout_id = workout, exercise_id = exercise)
+        new_ex = UserExercises(exercise_id = exercise)
         if(ex_history.exists()):
-            temp = UserExercises.objects.filter(workout_id__date_completed__gte=timezone.now() - datetime.timedelta(days=7))
+            temp = ex_history.filter(workout_id__date_completed__gte=timezone.now() - datetime.timedelta(days=7))
             if(temp.exists()):
                 temp.order_by('workout_id__date_completed')
                 last_wrkt = temp[0]
                 if(last_wrkt.reps < 12):
                     new_reps = last_wrkt.reps + 1
                     new_weight = last_wrkt.weight
+                    new_sets = last_wrkt.sets
                 else:
                     new_reps = 8
                     new_weight = last_wrkt.weight + 5
+                    new_sets = 3
                 new_ex.weight = new_weight
                 new_ex.reps = new_reps
-                new_ex.sets = 3
+                new_ex.sets = new_sets
         user_ex.append(new_ex)
     return user_ex
         
@@ -71,46 +75,88 @@ def suggested_workout(request, user_username):
     if(user.active_session == True):
         wrkt_ids = request.session.get('gen_wrkt_ids', [])
         exercises = [Exercise.objects.get(pk=pk) for pk in wrkt_ids]
-
-        curr_wrkt = UserWorkouts(user_id = user)
+        #FOR DEMO PUPROSES ONLY
+        #exercises = [Exercise.objects.get(pk=60), Exercise.objects.get(pk=650), Exercise.objects.get(pk=86),]
         user_history = UserExercises.objects.filter(workout_id__user_id = user_username)
 
         if(user_history.exists()):
-            #see when a workout of the same muscle group was done 
-            #exercise id is the magic field
-            user_ex = grab_user_hist(user_history, exercises, curr_wrkt)
-
-            #see if any of current exercises match the user history
-            #if they do, check the date they were completed
-            #if it's a week ago or less, increase rep (up to 12 - if number of reps is 12, increase weight) 
-            #if it's been longer than a week, keep it the same (for now, there's probably a more sciencey way to do it)
-             
-            #fuck, this is gonna be another form
-            #create a new user exercise for each with the information gathered, then put it in the session so the form can access it
-            print("beans")
+            user_ex = grab_user_hist(user_history, exercises)
         else:
             user_ex = []
             for exercise in exercises:
-                new_ex = UserExercises(workout_id = curr_wrkt, exercise_id = exercise)
+                new_ex = UserExercises(exercise_id = exercise)
                 user_ex.append(new_ex)
+        future_exercises = {}
+        for exercise in user_ex:
+            ex_id_str = str(exercise.exercise_id.pk)
+            future_exercises[ex_id_str] = {
+                'exercise_id': exercise.exercise_id.pk,
+                'weight': float(exercise.weight) if exercise.weight is not None else 0.0,
+                'reps': exercise.reps,
+                'sets': exercise.sets,
+                'liked': exercise.liked,
+            }
+        request.session['future_exercises'] = future_exercises
 
-        # Get the 'msg' parameter from the URL, default to 'Moo!'
-        message = request.GET.get('msg', 'WORK IN PROGRESS.')
+        ExerciseFormSet = formset_factory(ExerciseForm, extra=0) # extra=0 prevents blank forms at the end
 
-        e = Exercise.objects.get(name='3/4 Sit-Up')
-        #test_image2 = Exercise.objects.get(name='3/4 Sit-Up').image2_path
-        
-        # Generate the cowsay ASCII art
-        cow_art = html.escape(cowsay.get_output_string('cow', message))
-        context = {'cow_art': cow_art,
-                   'e': e,
+        initial_data = [
+            {'exercise_pk': ex.exercise_id.pk, 'sets': ex.sets, 'weight': ex.weight, 'reps': ex.reps} 
+            for ex in user_ex
+        ]
+
+        formset = ExerciseFormSet(initial=initial_data)
+        exercise_forms = list(zip(exercises, formset))
+
+        context = {
                    'user_username': user_username,
                    'wrkt_ids': wrkt_ids,
+                   'formset': formset,
                    'exercises': exercises,
+                   'exercise_forms': exercise_forms,
                    }
         return render(request, "lzwrkts/suggested_workout.html", context)
     else:
         return render(request, "lzwrkts/index.html")
+
+def save_workout(request, user_username):
+    user = get_object_or_404(User, pk=user_username)
+    
+    if(user.active_session == True):
+        if request.method == "POST":
+            finished_workout = UserWorkouts.objects.create(user_id = user)
+            future_exercises = request.session.get('future_exercises', {})
+            ExerciseFormSet = formset_factory(ExerciseForm, extra=len(future_exercises))
+            finished_exercises = []
+            names = []
+
+            
+            formset = ExerciseFormSet(request.POST)
+            if formset.is_valid():
+                for form in formset:
+                    #submitted_pk = str(form.cleaned_data.get('exercise_pk'))
+                    # if submitted_pk in future_exercises:
+                    # session_ex = future_exercises[submitted_pk]
+                    new = UserExercises.objects.create(
+                        workout_id = finished_workout,
+                        exercise_id=Exercise.objects.get(pk=form.cleaned_data.get('exercise_pk')),
+                        weight = form.cleaned_data.get('weight'),
+                        reps = form.cleaned_data.get('sets'),
+                        sets = form.cleaned_data.get('reps'),
+                        liked = form.cleaned_data.get('liked'),
+                        )
+                    finished_exercises.append(new)
+                    names.append(Exercise.objects.get(pk=form.cleaned_data.get('exercise_pk')).name)
+                context = {
+                   'user_username': user_username,
+                   'formset': formset,
+                   'exercises': finished_exercises,
+                   'names': names
+                   }
+                return render(request, "lzwrkts/finish_workout.html", context)           
+            else:
+                return HttpResponseRedirect(reverse("lzwrkts:suggestedwrkt", args=(user.username,)))
+    return HttpResponseRedirect(reverse("lzwrkts:suggestedwrkt", args=(user.username,)))
 
 def workout_generator(request, user_username):
     user = get_object_or_404(User, pk=user_username)

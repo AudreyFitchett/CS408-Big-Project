@@ -1,10 +1,12 @@
 {% include "lzwrkts/header.html" %} 
+{% load static %}
 <h1 class="display-1 fw-bold">Your Workout</h1>
 <h2 class="text-secondary display-5">Here are your curated exercises.</h2>
 
 <div class="container-fluid px-5 my-5">
-    <form action="{#}" method="post">
+    <form action="{% url 'lzwrkts:finishedwrkt' user_username %}" method="post">
         {% csrf_token %}
+        {{ formset.management_form }}
         <div class="row">
             <div class="col">
             </div>
@@ -21,31 +23,43 @@
                 <h4>Instructions</h4>
             </div>
             <div class="col">
-                <h4>Visual</h4>
+                <h4>Liked</h4>
             </div>
         </div>
-        {%for exercise in exercises%}
+        {%for exercise, form in exercise_forms%}
+            <div class="row align-items-center justify-content-between">
+                <div class="col">
+                    <h5>{{ exercise.name }}</h5>
+                </div>
+                <div class="col">
+                    {{ form.exercise_pk }}
+                    {{ form.sets }}
+                </div>
+                <div class="col">
+                    {{ form.weight }}
+                </div>
+                <div class="col">
+                    {{ form.reps }}
+                </div>
+                <div class="col">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#secrets{{ forloop.counter }}">Click Me!</button>
+                </div>
+                <div class="col">
+                    {{ form.liked }}
+            </div>
             <div class="row">
-                <div class="col">
-                    <h5>{{ forloop.counter }}: {{ exercise.name }}</h5>
-                </div>
-                <div class="col">
-                    <input type="text" class="form-control" value="" name="sets">
-                </div>
-                <div class="col">
-                    <input type="password" class="form-control" value="tbd" name="weights">
-                </div>
-                <div class="col">
-                    <input type="password" class="form-control" value="tbd" name="reps">
-                </div>
-                <div class="col">
-                    <span>instructions here</span>
-                </div>
-                <div class="col">
-                    <span>photos here</span>
+                <div id="secrets{{ forloop.counter }}" class="collapse">
+                    <div class="col">
+                        <span>{{ exercise.instructions }}</span>
+                    </div>
+                    <div class="col">
+                        <img src="{% static exercise.image1_path %}" alt="{{ exercise.name }}">
+                        <img src="{% static exercise.image2_path %}" alt="{{ exercise.name }}">
+                    </div>
                 </div>
             </div>
         {% endfor %}
+        <button type="submit" class="btn btn-primary">I'm Done (and exhausted)</button>
     </form>
 </div>
 

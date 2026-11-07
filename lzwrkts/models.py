@@ -70,7 +70,7 @@ class Exercise(models.Model):
         #for now, we're going to hardcode it at beginner. Later, I can add level to the form
         #barbell, dumbbell, kettlebells
         #filter out by equipment
-        choice = random.sample(range(0, type.count() - 1), 4)
+        choice = random.sample(range(0, type.count()), numsets)
 
         for i in range(numsets):
             workout.append(type[choice[i]])
@@ -79,7 +79,8 @@ class Exercise(models.Model):
             abs = random.randint(0,1)
         if(bonus == "yes" or abs == 1):
             type = Exercise.objects.filter(primary_muscle__in=Muscles.objects.filter(name = 'abdominals'))
-            workout.append(type[4])
+            choice = random.sample(range(0, type.count()), 1)
+            workout.append(type[choice[0]])
 
         return workout
 
@@ -90,11 +91,13 @@ class UserWorkouts(models.Model):
 
 class UserExercises(models.Model):
     workout_id = models.ForeignKey(UserWorkouts, on_delete=models.CASCADE)
-    exercise_id = models.ForeignKey(Exercise, on_delete=models.CASCADE)
+    exercise_id = models.ForeignKey(Exercise, on_delete=models.CASCADE, null=True, 
+        blank=True)
     #TODO: this will have to be set to null=True
     weight = models.DecimalField(max_digits=4, decimal_places=1, null=True)
     reps = models.PositiveSmallIntegerField(null=True)
     sets = models.PositiveSmallIntegerField(null=True)
+    liked = models.BooleanField(default=False)
     #TODO: I definitley forgot to add the liked field 
     
     

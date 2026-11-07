@@ -1,0 +1,60 @@
+{% include "lzwrkts/header.html" %} 
+{% load static %}
+<h1 class="display-1 fw-bold">You did it!</h1>
+<h2 class="text-secondary display-5">Congrats on finishing your workout! Here's your final stats, set in stone.</h2>
+
+<div class="container-fluid px-5 my-5">
+    <div class="row border">
+        <div class="col">
+        </div>
+        <div class="col border">
+            <h4>Sets</h4>
+        </div>
+        <div class="col border">
+            <h4>Weights</h4>
+        </div>
+        <div class="col border">
+            <h4>Reps</h4>
+        </div>
+        <div class="col border">
+            <h4>Instructions</h4>
+        </div>
+        <div class="col border">
+            <h4>Liked</h4>
+        </div>
+    </div>
+    {%for exercise in exercises%}
+        <div class="row border">
+            <div class="col border">
+                <h5>{{ exercise.exercise_id.name }}</h5>
+            </div>
+            <div class="col border">
+                {{ exercise.sets }}
+            </div>
+            <div class="col border">
+                {{ exercise.weight }}
+            </div>
+            <div class="col border">
+                <span>{{ exercise.reps }}</span>
+            </div>
+            <div class="col border">
+                <button type="button" class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#secrets{{ forloop.counter }}">Click Me!</button>
+            </div>
+            <div class="col border">
+                <span>{{ exercise.liked }}</span>
+            </div>
+        </div>
+        <div class="row">
+            <div id="secrets{{ forloop.counter }}" class="collapse">
+                <div class="col">
+                    <span>{{ exercise.exercise_id.instructions }}</span>
+                </div>
+                <div class="col">
+                    <img src="{% static exercise.exercise_id.image1_path %}" alt="{{ exercise.name }}">
+                    <img src="{% static exercise.exercise_id.image2_path %}" alt="{{ exercise.name }}">
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% include "lzwrkts/footer.html" %}
