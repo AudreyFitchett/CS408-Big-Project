@@ -10,6 +10,19 @@ from django.db.models import Q
 # Create your tests here.
 pytestmark = pytest.mark.django_db
 
+@pytest.fixture
+def dummy_user_data():
+    # Database calls are safe inside a fixture because it runs after the test DB is set up
+    user = User.objects.create(username="temp", password="1234")
+    
+    # Note: Assuming 'date_completed' based on your other models
+    wrkt = UserWorkouts.objects.create(user_id=user, date_completed=timezone.now() - datetime.timedelta(days=3))
+    
+    UserExercises.objects.create(workout_id=wrkt, exercise_id=Exercise.objects.all()[3], weight=3, reps=3, sets=3)
+    UserExercises.objects.create(workout_id=wrkt, exercise_id=Exercise.objects.all()[17], weight=5, reps=4, sets=2)
+
+    return {"user": user, "wrkt": wrkt}
+
 #just wanna make sure everything is loaded in properly
 #these should really never change
 class TestDBInit:
@@ -138,38 +151,42 @@ class TestOtherStuffIg:
         else:
             assert len(workout) == 4 and Muscles.objects.get(name = workout[0].primary_muscle).exercise_group == "pull"
     
-    def test_grab_user_hist(self):
-        user = User.objects.create(username="temp", password="1234")
-        workout = UserWorkouts.objects.create(user_id=user)
+    def test_grab_user_hist(self, dummy_user_data):
+        user = dummy_user_data["user"]
+        workout = dummy_user_data["wrkt"]
         exercises = [Exercise.objects.all()[0], Exercise.objects.all()[17], Exercise.objects.all()[52]]
         user_history = UserExercises.objects.filter(workout_id__user_id = user.username)
-        new_reps
-        new_weight
-
-
-        #okay, what am I doing?
-        if(user_history.Exists()):
+        user_ex = []
+        
+        if(user_history.exists()):
             for exercise in exercises:
                 ex_history = user_history.filter(exercise_id = exercise)
-                if(ex_history.Exists()):
-                    temp = UserWorkouts.objects.filter(pk=ex_history.workout_id).filter(date_completed = datetime.date.today() - 7)
-                    if(temp.Exists()):
-                        temp.order_by('date_completed')
+                new_ex = UserExercises(workout_id = workout, exercise_id = exercise)
+                if(ex_history.exists()):
+                    temp = UserExercises.objects.filter(workout_id__date_completed__gte=timezone.now() - datetime.timedelta(days=7))
+                    if(temp.exists()):
+                        temp.order_by('workout_id__date_completed')
                         last_wrkt = temp[0]
-                        if(last_wrkt.numreps < 12):
-                            new_reps = last_wrkt.numreps + 1
+                        if(last_wrkt.reps < 12):
+                            new_reps = last_wrkt.reps + 1
+                            new_weight = last_wrkt.weight
                         else:
                             new_reps = 8
-                            new_weight = last_wrkt.weight + 2.5
-            #see when a workout of the same muscle group was done 
-            #see if any of current exercises match the user history
-            #if they do, check the date they were completed
-            #if it's a week ago or less, increase rep (up to 12 - if number of reps is 12, increase weight) 
-            #if it's been longer than a week, keep it the same (for now, there's probably a more sciencey way to do it)
-             
-            #fuck, this is gonna be another form
-            #create a new user exercise for each with the information gathered, then put it in the session so the form can access it
-        assert True
+                            new_weight = last_wrkt.weight + 5
+                        new_ex.weight = new_weight
+                        new_ex.reps = new_reps
+                        new_ex.sets = 3
+                user_ex.append(new_ex)
+            assert len(user_ex) == 3
+        else:
+            for exercise in exercises:
+                new_ex = UserExercises(workout_id = workout, exercise_id = exercise)
+                user_ex.append(new_ex)
+            assert len(user_ex) == 3
+
+
+    
+
     
     
 

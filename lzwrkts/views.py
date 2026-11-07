@@ -7,8 +7,32 @@ import cowsay
 from .models import *
 from .forms import *
 from django.utils import timezone
+from datetime import date
 
-# Create your views here.
+def grab_user_hist(user_history, exercises, workout):
+    user_ex = []
+        
+    for exercise in exercises:
+        ex_history = user_history.filter(exercise_id = exercise)
+        new_ex = UserExercises(workout_id = workout, exercise_id = exercise)
+        if(ex_history.exists()):
+            temp = UserExercises.objects.filter(workout_id__date_completed__gte=timezone.now() - datetime.timedelta(days=7))
+            if(temp.exists()):
+                temp.order_by('workout_id__date_completed')
+                last_wrkt = temp[0]
+                if(last_wrkt.reps < 12):
+                    new_reps = last_wrkt.reps + 1
+                    new_weight = last_wrkt.weight
+                else:
+                    new_reps = 8
+                    new_weight = last_wrkt.weight + 5
+                new_ex.weight = new_weight
+                new_ex.reps = new_reps
+                new_ex.sets = 3
+        user_ex.append(new_ex)
+    return user_ex
+        
+
 def index(request): 
     # Return as plain text so the browser preserves the formatting
     return render(request, "lzwrkts/index.html")
@@ -51,10 +75,10 @@ def suggested_workout(request, user_username):
         curr_wrkt = UserWorkouts(user_id = user)
         user_history = UserExercises.objects.filter(workout_id__user_id = user_username)
 
-        if(user_history.count() !=0):
+        if(user_history.exists()):
             #see when a workout of the same muscle group was done 
             #exercise id is the magic field
-            
+            user_ex = grab_user_hist(user_history, exercises, curr_wrkt)
 
             #see if any of current exercises match the user history
             #if they do, check the date they were completed
@@ -64,6 +88,11 @@ def suggested_workout(request, user_username):
             #fuck, this is gonna be another form
             #create a new user exercise for each with the information gathered, then put it in the session so the form can access it
             print("beans")
+        else:
+            user_ex = []
+            for exercise in exercises:
+                new_ex = UserExercises(workout_id = curr_wrkt, exercise_id = exercise)
+                user_ex.append(new_ex)
 
         # Get the 'msg' parameter from the URL, default to 'Moo!'
         message = request.GET.get('msg', 'WORK IN PROGRESS.')

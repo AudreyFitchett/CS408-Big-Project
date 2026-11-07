@@ -92,7 +92,7 @@ class UserExercises(models.Model):
     workout_id = models.ForeignKey(UserWorkouts, on_delete=models.CASCADE)
     exercise_id = models.ForeignKey(Exercise, on_delete=models.CASCADE)
     #TODO: this will have to be set to null=True
-    weight = models.DecimalField(max_digits=4, decimal_places=1)
+    weight = models.DecimalField(max_digits=4, decimal_places=1, null=True)
     reps = models.PositiveSmallIntegerField(null=True)
     sets = models.PositiveSmallIntegerField(null=True)
     #TODO: I definitley forgot to add the liked field 

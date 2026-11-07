@@ -3,3 +3,4 @@ gunicorn
 cowsay
 pytest
 whitenoise
+pytest-django
