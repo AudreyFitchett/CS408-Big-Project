@@ -76,7 +76,7 @@ def suggested_workout(request, user_username):
         wrkt_ids = request.session.get('gen_wrkt_ids', [])
         exercises = [Exercise.objects.get(pk=pk) for pk in wrkt_ids]
         #FOR DEMO PUPROSES ONLY
-        #exercises = [Exercise.objects.get(pk=60), Exercise.objects.get(pk=650), Exercise.objects.get(pk=86),]
+        #exercises = [Exercise.objects.get(name='Alternating Kettlebell Row'), Exercise.objects.get(name='Alternating Renegade Row'), Exercise.objects.get(name = 'Barbell Ab Rollout - On Knees'),]
         user_history = UserExercises.objects.filter(workout_id__user_id = user_username)
 
         if(user_history.exists()):
@@ -141,8 +141,8 @@ def save_workout(request, user_username):
                         workout_id = finished_workout,
                         exercise_id=Exercise.objects.get(pk=form.cleaned_data.get('exercise_pk')),
                         weight = form.cleaned_data.get('weight'),
-                        reps = form.cleaned_data.get('sets'),
-                        sets = form.cleaned_data.get('reps'),
+                        reps = form.cleaned_data.get('reps'),
+                        sets = form.cleaned_data.get('sets'),
                         liked = form.cleaned_data.get('liked'),
                         )
                     finished_exercises.append(new)
