@@ -17,3 +17,15 @@ class ExerciseForm(forms.Form):
     sets = forms.IntegerField(label="sets", required=False)
     liked = forms.BooleanField(label="liked", required=False)
 
+class SearchForm(forms.Form):
+    search_term = forms.CharField(label="group", max_length=200, required=False)
+    filter = forms.MultipleChoiceField(
+        choices={
+            'push': 'push', 
+            'pull': 'pull', 
+            'legs': 'legs', 
+            'liked': 'liked',},
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+

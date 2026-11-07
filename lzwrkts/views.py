@@ -76,7 +76,7 @@ def suggested_workout(request, user_username):
         wrkt_ids = request.session.get('gen_wrkt_ids', [])
         exercises = [Exercise.objects.get(pk=pk) for pk in wrkt_ids]
         #FOR DEMO PUPROSES ONLY
-        #exercises = [Exercise.objects.get(pk=60), Exercise.objects.get(pk=650), Exercise.objects.get(pk=86),]
+        #exercises = [Exercise.objects.get(name='Alternating Kettlebell Row'), Exercise.objects.get(name='Alternating Renegade Row'), Exercise.objects.get(name = 'Barbell Ab Rollout - On Knees'),]
         user_history = UserExercises.objects.filter(workout_id__user_id = user_username)
 
         if(user_history.exists()):
@@ -141,8 +141,8 @@ def save_workout(request, user_username):
                         workout_id = finished_workout,
                         exercise_id=Exercise.objects.get(pk=form.cleaned_data.get('exercise_pk')),
                         weight = form.cleaned_data.get('weight'),
-                        reps = form.cleaned_data.get('sets'),
-                        sets = form.cleaned_data.get('reps'),
+                        reps = form.cleaned_data.get('reps'),
+                        sets = form.cleaned_data.get('sets'),
                         liked = form.cleaned_data.get('liked'),
                         )
                     finished_exercises.append(new)
@@ -179,17 +179,56 @@ def workout_generator(request, user_username):
 def search_exercises(request, user_username):
     user = get_object_or_404(User, pk=user_username)
     if(user.active_session == True):
-        # Get the 'msg' parameter from the URL, default to 'Moo!'
-        message = request.GET.get('msg', 'WORK IN PROGRESS.')
-        
-        # Generate the cowsay ASCII art
-        cow_art = html.escape(cowsay.get_output_string('cow', message))
-        context = {'cow_art': cow_art}
-        
-        # Return as plain text so the browser preserves the formatting
+        ex_list = Exercise.objects.filter(
+                (Q(equipment__in=["barbell", "dumbbell", "kettlebells"]) & 
+                Q(primary_muscle__in=Muscles.objects.filter(exercise_group__in=["push", "pull", "legs"]))) | 
+                Q(primary_muscle__in=Muscles.objects.filter(name = "abdominals")),
+                level = "beginner"
+                ).exclude(category="stretching").order_by('name')
+        u_ex = UserExercises.objects.filter(workout_id__user_id = user).order_by('exercise_id__name')
+        context = {"ex_list": ex_list,
+                        "u_list": u_ex,
+                        'user_username': user_username,
+                        }
+        if request.method == "POST":
+            form = SearchForm(request.POST)
+            if form.is_valid():
+                search = form.cleaned_data["search_term"]
+                ex_filter = form.cleaned_data["filter"]
+                if search != '':
+                    ex_list = ex_list.filter(
+                        Q(primary_muscle__in=Muscles.objects.filter(exercise_group__contains=search)) | Q(name__contains=search)
+                    )
+                if ex_filter != '':
+                    for e in ex_filter:
+                        if e == 'liked':
+                            ex_list = ex_list.filter(userexercises__isnull=False).filter(userexercises__liked=True)
+                        else:
+                            ex_list= ex_list.filter(primary_muscle__in=Muscles.objects.filter(exercise_group=e))
+                context = {"ex_list": ex_list,
+                            "u_list": u_ex,
+                            'user_username': user_username,
+                            }
+            #else:
+                #TODO: update with a 'we didn't find anything' message
+
         return render(request, "lzwrkts/search_page.html", context)
     else:
         return render(request, "lzwrkts/index.html")
+
+# def search_for_an_exercise(request, user_username):
+#     user = get_object_or_404(User, pk=user_username)
+#     if(user.active_session == True):
+#         if request.method == "POST":
+#             form = SearchForm(request.POST)
+#             if form.is_valid():
+#                 search = form.cleaned_data["search_term"]
+#                 context = {
+#                     'user_username': user_username,
+#                 }
+#                 return render(request, "lzwrkts/search_page.html", context)
+#     return HttpResponseRedirect(reverse("lzwrkts:home", args=(user.username,)))
+
     
 def workout_history(request, user_username):
     user = get_object_or_404(User, pk=user_username)
@@ -203,6 +242,21 @@ def workout_history(request, user_username):
         
         # Return as plain text so the browser preserves the formatting
         return render(request, "lzwrkts/search_page.html", context)
+    else:
+        return render(request, "lzwrkts/index.html")
+
+def detail(request, user_username):
+    user = get_object_or_404(User, pk=user_username)
+    if(user.active_session == True):
+        # Get the 'msg' parameter from the URL, default to 'Moo!'
+        message = request.GET.get('msg', 'WORK IN PROGRESS.')
+        
+        # Generate the cowsay ASCII art
+        cow_art = html.escape(cowsay.get_output_string('cow', message))
+        context = {'cow_art': cow_art}
+        
+        # Return as plain text so the browser preserves the formatting
+        return render(request, "lzwrkts/detail.html", context)
     else:
         return render(request, "lzwrkts/index.html")
 

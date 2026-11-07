@@ -78,6 +78,7 @@ class Exercise(models.Model):
         if(bonus == "surprise_me"):
             abs = random.randint(0,1)
         if(bonus == "yes" or abs == 1):
+            #TODO: filter out non home workout friendly equipment (body only okay)
             type = Exercise.objects.filter(primary_muscle__in=Muscles.objects.filter(name = 'abdominals'))
             choice = random.sample(range(0, type.count()), 1)
             workout.append(type[choice[0]])
@@ -88,6 +89,8 @@ class Exercise(models.Model):
 class UserWorkouts(models.Model):
     date_completed = models.DateTimeField(default=timezone.now)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    def __str__(self):
+        return self.date_completed
 
 class UserExercises(models.Model):
     workout_id = models.ForeignKey(UserWorkouts, on_delete=models.CASCADE)

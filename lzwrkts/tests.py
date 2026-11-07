@@ -117,7 +117,7 @@ class TestDBUploading():
 
         assert UserExercises.objects.filter(workout_id = workout, exercise_id = exercise, weight = index, reps = index, sets=index).exists() is False
 
-class TestOtherStuffIg:
+class TestDBInteraction:
     
     def test_grab_exercises(self):
         group = "pull"
@@ -183,6 +183,29 @@ class TestOtherStuffIg:
                 new_ex = UserExercises(workout_id = workout, exercise_id = exercise)
                 user_ex.append(new_ex)
             assert len(user_ex) == 3
+
+    def test_complicated_query(self):
+        ex_list = Exercise.objects.filter(
+            (Q(equipment__in=["barbell", "dumbbell", "kettlebells"]) & 
+             Q(primary_muscle__in=Muscles.objects.filter(exercise_group__in=["push", "pull", "legs"]))) | 
+             Q(primary_muscle__in=Muscles.objects.filter(name = "abdominals")),
+             level = "beginner"
+            ).exclude(category="stretching")
+        assert (ex_list.exists() and ex_list.filter(category="stretching").exists()==False 
+                and ex_list.filter(primary_muscle__in=Muscles.objects.filter(name = "abdominals")).exists()
+                and ex_list.count()==201)
+    
+    
+    def grab_legs(self):
+        type = Exercise.objects.filter(
+            #things that people can feasible have at home only
+            Q(equipment = "barbell") | Q(equipment = "dumbbell") | Q(equipment = "kettlebells"),
+            level = "beginner",
+            primary_muscle__in=Muscles.objects.filter(exercise_group = 'legs'),
+            )
+        assert type.exists()
+        
+
 
 
     
