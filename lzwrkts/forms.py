@@ -19,6 +19,8 @@ class ExerciseForm(forms.Form):
 
 class SearchForm(forms.Form):
     search_term = forms.CharField(label="group", max_length=200, required=False)
+    start_date = forms.DateField(label="start_date", required=False)
+    end_date = forms.DateField(label="end_date", required=False)
     filter = forms.MultipleChoiceField(
         choices={
             'push': 'push', 

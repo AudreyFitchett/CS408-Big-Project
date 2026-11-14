@@ -90,7 +90,7 @@ class UserWorkouts(models.Model):
     date_completed = models.DateTimeField(default=timezone.now)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     def __str__(self):
-        return self.date_completed
+        return self.date_completed.strftime("%m-%d-%g")
 
 class UserExercises(models.Model):
     workout_id = models.ForeignKey(UserWorkouts, on_delete=models.CASCADE)

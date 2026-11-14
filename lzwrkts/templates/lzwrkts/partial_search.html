@@ -1,0 +1,31 @@
+
+<div>
+    <div>
+    <form action="{{ form_action }}" method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col">
+                <input type="text" class="form-control" placeholder="{{ search_placeholder }}" name="search_term">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col"><label for="filter">Filter:</label></div>
+            <span class="form-check col">
+                <input class="form-check-input" type="checkbox" id="check1" name="filter" value="pull">
+                <label class="form-check-label">Pull</label>
+            </span>
+            <span class="form-check col">
+                <input class="form-check-input" type="checkbox" id="check2" name="filter" value="push">
+                <label class="form-check-label">Push</label>
+            </span>
+            <span class="form-check col">
+                <input class="form-check-input" type="checkbox" id="check3" name="filter" value="legs">
+                <label class="form-check-label">Legs</label>
+            </span>
+            <span class="form-check col">
+                <input class="form-check-input" type="checkbox" id="check4" name="filter" value="liked">
+                <label class="form-check-label">Liked</label>
+            </span>
+        </div>
+        </form>
+    </div>

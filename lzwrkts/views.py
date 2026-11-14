@@ -10,6 +10,7 @@ from django.utils import timezone
 import datetime
 from django.forms import formset_factory
 from .forms import ExerciseForm
+from itertools import pairwise
 
 def grab_user_hist(user_history, exercises):
     user_ex = []
@@ -185,7 +186,15 @@ def search_exercises(request, user_username):
                 Q(primary_muscle__in=Muscles.objects.filter(name = "abdominals")),
                 level = "beginner"
                 ).exclude(category="stretching").order_by('name')
-        u_ex = UserExercises.objects.filter(workout_id__user_id = user).order_by('exercise_id__name')
+        temp = UserExercises.objects.filter(workout_id__user_id=user).order_by('-workout_id__date_completed', '-workout_id__pk')
+        u_ex = []
+        seen_exercises = set()
+
+        for item in temp:
+            if item.exercise_id_id not in seen_exercises:
+                u_ex.append(item)
+                seen_exercises.add(item.exercise_id_id)
+
         context = {"ex_list": ex_list,
                         "u_list": u_ex,
                         'user_username': user_username,
@@ -216,34 +225,42 @@ def search_exercises(request, user_username):
     else:
         return render(request, "lzwrkts/index.html")
 
-# def search_for_an_exercise(request, user_username):
-#     user = get_object_or_404(User, pk=user_username)
-#     if(user.active_session == True):
-#         if request.method == "POST":
-#             form = SearchForm(request.POST)
-#             if form.is_valid():
-#                 search = form.cleaned_data["search_term"]
-#                 context = {
-#                     'user_username': user_username,
-#                 }
-#                 return render(request, "lzwrkts/search_page.html", context)
-#     return HttpResponseRedirect(reverse("lzwrkts:home", args=(user.username,)))
-
-    
 def workout_history(request, user_username):
     user = get_object_or_404(User, pk=user_username)
     if(user.active_session == True):
-        # Get the 'msg' parameter from the URL, default to 'Moo!'
-        message = request.GET.get('msg', 'WORK IN PROGRESS.')
-        
-        # Generate the cowsay ASCII art
-        cow_art = html.escape(cowsay.get_output_string('cow', message))
-        context = {'cow_art': cow_art}
-        
-        # Return as plain text so the browser preserves the formatting
-        return render(request, "lzwrkts/search_page.html", context)
+        w_list = UserExercises.objects.filter(workout_id__user_id = user).order_by('workout_id__date_completed')
+        u_wrkt = UserExercises.objects.filter(workout_id__user_id = user).order_by('workout_id__date_completed')
+        context = {"ex_list": w_list,
+                        "u_list": u_wrkt,
+                        'user_username': user_username,
+                        }
+        if request.method == "POST":
+            form = SearchForm(request.POST)
+            if form.is_valid():
+                start = form.cleaned_data["start_date"]
+                end = form.cleaned_data["end_date"]
+                w_filter = form.cleaned_data["filter"]
+                if start is not None:
+                    w_list = w_list.filter(workout_id__date_completed__gte=start)
+                if end is not None:
+                    w_list = w_list.filter(workout_id__date_completed__lte=end)
+                if w_filter != '':
+                    for w in w_filter:
+                        if w == 'liked':
+                            w_list = w_list.filter(liked=True)
+                        else:
+                            w_list= w_list.filter(exercise_id__primary_muscle__in=Muscles.objects.filter(exercise_group=w)).exclude(exercise_id__primary_muscle__name='abdominals')
+                context = {"ex_list": w_list,
+                            "u_list": u_wrkt,
+                            'user_username': user_username,
+                            }
+            #else:
+                #TODO: update with a 'we didn't find anything' message
+
+        return render(request, "lzwrkts/workout_history.html", context)
     else:
         return render(request, "lzwrkts/index.html")
+
 
 def detail(request, user_username):
     user = get_object_or_404(User, pk=user_username)

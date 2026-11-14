@@ -1,0 +1,72 @@
+{% include "lzwrkts/header.html" %}
+
+<div>
+    <div>
+    <form action="{% url 'lzwrkts:history' user_username %}" method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col">
+                <label for="start_date" class="form-label small text-muted">Start Date</label>
+                <input type="date" class="form-control" id="start_date" name="start_date">
+            </div>
+            <div class="col">
+                <label for="end_date" class="form-label small text-muted">End Date</label>
+                <input type="date" class="form-control" id="end_date" name="end_date">
+            </div>
+            <div class = "col-1 pt-4"><button type="submit" class="btn btn-primary">Apply Filters</button></div>
+        </div>
+        <div class="row">
+            <div class="col"><label for="filter">Filter:</label></div>
+            <span class="form-check col">
+                <input class="form-check-input" type="checkbox" id="check1" name="filter" value="pull">
+                <label class="form-check-label">Pull</label>
+            </span>
+            <span class="form-check col">
+                <input class="form-check-input" type="checkbox" id="check2" name="filter" value="push">
+                <label class="form-check-label">Push</label>
+            </span>
+            <span class="form-check col">
+                <input class="form-check-input" type="checkbox" id="check3" name="filter" value="legs">
+                <label class="form-check-label">Legs</label>
+            </span>
+            <span class="form-check col">
+                <input class="form-check-input" type="checkbox" id="check4" name="filter" value="liked">
+                <label class="form-check-label">Liked</label>
+            </span>
+        </div>
+        </form>
+    </div>
+    {% for exercise in ex_list %}
+    {% ifchanged exercise.workout_id %}
+        <div class="row">
+            <div class="card" style="transform: rotate(0);">
+                {% if forloop.counter|divisibleby:2 %}
+                <div class="card-body bg-light">
+                {% else %}
+                <div class="card-body">
+                {% endif %}
+                    <div class="row">
+                        <a href="{% url 'lzwrkts:detail' user_username%}" class="stretched-link"></a>
+                        <div class="col text-capitalize"><span class="fw-semibold">{{ exercise.workout_id }}</span> | <span class="fst-italic">{{ exercise.exercise_id.primary_muscle.exercise_group }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% if forloop.counter|divisibleby:2 %}
+                <div class="card-footer small bg-light border-top-0">
+                {% else %}
+                <div class="card-footer small bg-body border-top-0">
+                {% endif %}
+                    <ul>
+                    {% for u in u_list %}
+                        {%if u.workout_id == exercise.workout_id%}
+                            <li>{{ u.exercise_id }} {% if u.liked == True %} | &#x2764 {% endif %}</li>   
+                        {% endif %}
+                    {% endfor %}
+                    </ul> 
+                </div>
+            </div>
+        </div>
+    {% endifchanged %}
+</div>
+{% endfor %}
+{% include "lzwrkts/footer.html" %}
