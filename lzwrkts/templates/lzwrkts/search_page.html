@@ -4,7 +4,7 @@
 {% include "lzwrkts/partial_search.html" with form_action=search_url search_placeholder="What are you looking for?" %}
 
     {%for exercise in ex_list%}
-    <div class="row">
+    <div class="row ps-2">
         <div class="card" style="transform: rotate(0);">
             {% if forloop.counter|divisibleby:2 %}
             <div class="card-body bg-light">
