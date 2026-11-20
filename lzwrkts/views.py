@@ -18,22 +18,29 @@ def grab_user_hist(user_history, exercises):
     for exercise in exercises:
         ex_history = user_history.filter(exercise_id = exercise)
         new_ex = UserExercises(exercise_id = exercise)
+        time_range = timezone.now() - datetime.timedelta(days=7)
         if(ex_history.exists()):
-            temp = ex_history.filter(workout_id__date_completed__gte=timezone.now() - datetime.timedelta(days=7))
-            if(temp.exists()):
-                temp.order_by('workout_id__date_completed')
-                last_wrkt = temp[0]
-                if(last_wrkt.reps < 12):
-                    new_reps = last_wrkt.reps + 1
-                    new_weight = last_wrkt.weight
-                    new_sets = last_wrkt.sets
+            #temp = ex_history.filter(workout_id__date_completed__gte=timezone.now() - datetime.timedelta(days=7))
+            if(ex_history.exists()):
+                ex_history = ex_history.order_by('workout_id__date_completed')
+                last_wrkt = ex_history[0]
+                if(last_wrkt.workout_id.date_completed >= time_range):
+                    if(last_wrkt.reps < 12):
+                        new_reps = last_wrkt.reps + 1
+                        new_weight = last_wrkt.weight
+                        new_sets = last_wrkt.sets
+                    else:
+                        new_reps = 8
+                        new_weight = last_wrkt.weight + 5
+                        new_sets = 3
+                    new_ex.weight = new_weight
+                    new_ex.reps = new_reps
+                    new_ex.sets = new_sets
                 else:
-                    new_reps = 8
-                    new_weight = last_wrkt.weight + 5
-                    new_sets = 3
-                new_ex.weight = new_weight
-                new_ex.reps = new_reps
-                new_ex.sets = new_sets
+                    new_ex.weight = last_wrkt.weight
+                    new_ex.reps = last_wrkt.reps
+                    new_ex.sets = last_wrkt.sets
+                new_ex.liked = last_wrkt.liked
         user_ex.append(new_ex)
     return user_ex
         
@@ -75,10 +82,10 @@ def suggested_workout(request, user_username):
     user = get_object_or_404(User, pk=user_username)
     if(user.active_session == True):
         wrkt_ids = request.session.get('gen_wrkt_ids', [])
-        exercises = [Exercise.objects.get(pk=pk) for pk in wrkt_ids]
+        #exercises = [Exercise.objects.get(pk=pk) for pk in wrkt_ids]
         #FOR DEMO PUPROSES ONLY
-        #exercises = [Exercise.objects.get(name='Alternating Kettlebell Row'), Exercise.objects.get(name='Alternating Renegade Row'), Exercise.objects.get(name = 'Barbell Ab Rollout - On Knees'),]
-        user_history = UserExercises.objects.filter(workout_id__user_id = user_username)
+        exercises = [Exercise.objects.get(name='Barbell Shrug'), Exercise.objects.get(name='Seated Dumbbell Curl'), Exercise.objects.get(name = 'Bent Over Two-Dumbbell Row With Palms In')]
+        user_history = UserExercises.objects.filter(workout_id__user_id = user)
 
         if(user_history.exists()):
             user_ex = grab_user_hist(user_history, exercises)
@@ -102,7 +109,7 @@ def suggested_workout(request, user_username):
         ExerciseFormSet = formset_factory(ExerciseForm, extra=0) # extra=0 prevents blank forms at the end
 
         initial_data = [
-            {'exercise_pk': ex.exercise_id.pk, 'sets': ex.sets, 'weight': ex.weight, 'reps': ex.reps} 
+            {'exercise_pk': ex.exercise_id.pk, 'sets': ex.sets, 'weight': ex.weight, 'reps': ex.reps, 'liked': ex.liked} 
             for ex in user_ex
         ]
 
@@ -262,16 +269,24 @@ def workout_history(request, user_username):
         return render(request, "lzwrkts/index.html")
 
 
-def detail(request, user_username):
+def detail(request, user_username, exercise_pk):
     user = get_object_or_404(User, pk=user_username)
+    exercise = get_object_or_404(Exercise, pk=exercise_pk)
+
     if(user.active_session == True):
-        # Get the 'msg' parameter from the URL, default to 'Moo!'
-        message = request.GET.get('msg', 'WORK IN PROGRESS.')
-        
-        # Generate the cowsay ASCII art
-        cow_art = html.escape(cowsay.get_output_string('cow', message))
-        context = {'cow_art': cow_art}
-        
+        all_ex = UserExercises.objects.filter(workout_id__user_id = user, exercise_id=exercise)
+        if(all_ex.count() > 1):
+            all_ex = all_ex.order_by('workout_id__date_completed')
+            og_ex = all_ex.first()
+            curr_ex = all_ex.last()
+        else:
+            og_ex = all_ex.first()
+            curr_ex = all_ex.first()
+        context = {'exercise': exercise,
+                'curr_ex': curr_ex,
+                'og_ex': og_ex,
+                'user_ex': all_ex}
+    
         # Return as plain text so the browser preserves the formatting
         return render(request, "lzwrkts/detail.html", context)
     else:
@@ -347,6 +362,22 @@ def signup(request):
         return render(request, "lzwrkts/index.html", {"form": new_user})
     
 
+def workout_detail(request, user_username):
+    user = get_object_or_404(User, pk=user_username)
+    # exercise = get_object_or_404(Exercise, pk=exercise_pk)
+
+    if(user.active_session == True):
+        # Get the 'msg' parameter from the URL, default to 'Moo!'
+        message = request.GET.get('msg', 'WORK IN PROGRESS.')
+        
+        # Generate the cowsay ASCII art
+        cow_art = html.escape(cowsay.get_output_string('cow', message))
+        context = {'cow_art': cow_art}
+        
+        # Return as plain text so the browser preserves the formatting
+        return render(request, "lzwrkts/workout_detail.html", context)
+    else:
+        return render(request, "lzwrkts/index.html")
 
 
 

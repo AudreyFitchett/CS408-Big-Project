@@ -1,3 +1,74 @@
 {% include "lzwrkts/header.html" %} 
-<pre class="container-fluid justify-content-center align-middle">{{cow_art}}</pre>
+<div class="container-fluid px-5 d-flex flex-column justify-content-center" style="min-height: 80vh;">
+  <div class="row align-items-center justify-content-between">
+
+    <div class="col-md-6 mb-4 mb-md-0">
+      <h1 class="display-1 fw-bold">{{exercise}}</h1>
+    </div>
+    
+    <div class="col-md-5 ps-5">
+        <div class="row border-bottom">
+            <h4>Details</h4>
+        </div>
+        <div class="row text-capitalize">
+            <span><strong>Group:</strong> {{exercise.primary_muscle.exercise_group}}</span>
+        </div>
+        {% if curr_ex is not None %}
+        <div class="row">
+            <span><strong>Liked: </strong>
+                {% if curr_ex.liked == True %}
+                    Yes &#x2764
+                {% elif curr_ex.liked == False %}
+                    No &macr;&#92;_(&#12484;)_/&macr;
+                {% else %}
+                    &macr;&#92;_(&#12484;)_/&macr;
+                {% endif %}
+            </span>
+        </div>
+        <div class="row">
+            <span><strong>Date:</strong> {{ curr_ex.workout_id.date_completed }}</span>
+        </div>
+        {% endif %}
+        <div class="row" data-bs-toggle="collapse" data-bs-target="#instructions">
+            <span><strong>Instructions:</strong></span>
+        </div>
+        <div class="row" id="instructions" class="collapse"><span>{{exercise.instructions}}</span></div>
+        <div class="row"><p></p></div>
+        <div class="row border-bottom"><h4>Progress</h4></div>
+        <div class="row justify-content-start">
+            <div class="col">
+                <h5>Date</h5>
+            </div>
+            <div class="col">
+                <h5>Sets</h5>
+            </div>
+            <div class="col">
+                <h5>Weights</h5>
+            </div>
+            <div class="col">
+                <h5>Reps</h5>
+            </div>
+        </div>
+            {% if user_ex.count > 0 %}
+                {%for ex in user_ex%}
+                <div class="row">
+                    <div class="col">
+                        <p>{{ ex.workout_id }}</p>
+                    </div>
+                    <div class="col"> {{ ex.sets }}</div>
+                    <div class="col"> {{ ex.weight }}</div>
+                    <div class="col"> {{ ex.reps }}</div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="row">
+                <p>You haven't done this workout yet!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div> 
+  </div>
+</div>
+
+
 {% include "lzwrkts/footer.html" %}

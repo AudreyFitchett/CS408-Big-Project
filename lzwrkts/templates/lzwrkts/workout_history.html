@@ -46,7 +46,7 @@
                 <div class="card-body">
                 {% endif %}
                     <div class="row">
-                        <a href="{% url 'lzwrkts:detail' user_username%}" class="stretched-link"></a>
+                        <a href="{% url 'lzwrkts:wrktdetail' user_username %}" class="stretched-link"></a>
                         <div class="col text-capitalize"><span class="fw-semibold">{{ exercise.workout_id }}</span> | <span class="fst-italic">{{ exercise.exercise_id.primary_muscle.exercise_group }}</span>
                         </div>
                     </div>
