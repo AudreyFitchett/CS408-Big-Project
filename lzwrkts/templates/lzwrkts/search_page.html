@@ -9,7 +9,7 @@
             {% if forloop.counter|divisibleby:2 %}
             <div class="card-body bg-main-white">
             {% else %}
-            <div class="card-body">
+            <div class="card-body bg-light-main">
             {% endif %}
                 <div class="row">
                     <a href="{% url 'lzwrkts:detail' user_username exercise.pk%}" class="stretched-link"></a>
@@ -25,7 +25,7 @@
             {% if forloop.counter|divisibleby:2 %}
             <div class="card-footer fst-italic small bg-main-white border-top-0">
             {% else %}
-            <div class="card-footer fst-italic small bg-body border-top-0"></div>
+            <div class="card-footer fst-italic small bg-light-main border-top-0">
             {% endif %}
                 {% for u in u_list %}
                     {%if u.exercise_id == exercise%}

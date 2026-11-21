@@ -4,7 +4,7 @@
 <h2 class="text-secondary display-5">Congrats on finishing your workout! Here's your final stats, set in stone.</h2>
 
 <div class="container-fluid px-5 my-5">
-    <div class="row border">
+    <div class="row border row-spacious text-center">
         <div class="col">
         </div>
         <div class="col border">
@@ -24,34 +24,43 @@
         </div>
     </div>
     {%for exercise in exercises%}
-        <div class="row border">
-            <div class="col border">
+        <div class="row border" style="min-height: 7vh;">
+            <div class="col border pt-2">
                 <h5>{{ exercise.exercise_id.name }}</h5>
             </div>
-            <div class="col border">
+            <div class="col border text-center">
                 {{ exercise.sets }}
             </div>
-            <div class="col border">
+            <div class="col border text-center">
                 {{ exercise.weight }}
             </div>
-            <div class="col border">
+            <div class="col border text-center">
                 <span>{{ exercise.reps }}</span>
             </div>
-            <div class="col border">
-                <button type="button" class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#secrets{{ forloop.counter }}">Click Me!</button>
+            <div class="col border pt-2 text-center">
+                <button type="button" class="btn btn-dark bg-dark-main btn-sm" data-bs-toggle="collapse" data-bs-target="#secrets{{ forloop.counter }}">Click Me!</button>
             </div>
-            <div class="col border">
-                <span>{{ exercise.liked }}</span>
+            <div class="col border text-center">
+                <span>
+                    {%if exercise.liked %}
+                        &#x2764
+                    {%else%}
+                        Nah
+                    {% endif %}</span>
             </div>
         </div>
         <div class="row">
             <div id="secrets{{ forloop.counter }}" class="collapse">
-                <div class="col">
+                <div class="col pt-2">
                     <span>{{ exercise.exercise_id.instructions }}</span>
                 </div>
-                <div class="col">
-                    <img src="{% static exercise.exercise_id.image1_path %}" alt="{{ exercise.name }}">
-                    <img src="{% static exercise.exercise_id.image2_path %}" alt="{{ exercise.name }}">
+                <div class="row pb-4 pt-3">
+                    <div class="col">
+                        <img src="{% static exercise.exercise_id.image1_path %}" class="img-fluid rounded" alt="{{ exercise.name }}">
+                    </div>
+                    <div class = "col">
+                        <img src="{% static exercise.exercise_id.image2_path %}" class="img-fluid rounded" alt="{{ exercise.name }}">
+                    </div>
                 </div>
             </div>
         </div>

@@ -82,9 +82,9 @@ def suggested_workout(request, user_username):
     user = get_object_or_404(User, pk=user_username)
     if(user.active_session == True):
         wrkt_ids = request.session.get('gen_wrkt_ids', [])
-        #exercises = [Exercise.objects.get(pk=pk) for pk in wrkt_ids]
+        exercises = [Exercise.objects.get(pk=pk) for pk in wrkt_ids]
         #FOR DEMO PUPROSES ONLY
-        exercises = [Exercise.objects.get(name='Barbell Shrug'), Exercise.objects.get(name='Seated Dumbbell Curl'), Exercise.objects.get(name = 'Bent Over Two-Dumbbell Row With Palms In')]
+        #exercises = [Exercise.objects.get(name='Barbell Shrug'), Exercise.objects.get(name='Seated Dumbbell Curl'), Exercise.objects.get(name = 'Bent Over Two-Dumbbell Row With Palms In')]
         user_history = UserExercises.objects.filter(workout_id__user_id = user)
 
         if(user_history.exists()):

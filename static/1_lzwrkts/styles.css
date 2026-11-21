@@ -1,16 +1,21 @@
 .bg-main {
-    background-color: #547c65;
+    background-color: #45b69c;
 }
 .bg-dark-main{
-    background-color: 	#0c4524;
+    background-color: 	#157A63;
 }
 
 .bg-light-main {
-    background-color: #abc5ae;
+    background-color: #e8f6f3;
 }
 
 .bg-main-white {
-    background-color: #e6f0e7;
+    background-color: #fdfcfb;
+}
+
+.bg-accent-only {
+    background-color: #F7A072;
+    border-color: #F7A072;
 }
 
 .btn-square-lg {
